@@ -1,0 +1,306 @@
+---
+title: "Assignment_2"
+author: "Rohith Ganesan"
+Student Id: "20553375"
+date: "14/12/2023"
+output: pdf_document
+---
+```{r}
+
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(ggplot2)
+obs_data<-read.csv("Observation_20553375(Rohith).csv")
+loc_data<-read.csv("Location_20553375(Rohith).csv")
+meas_data<-read.csv("Measurement_20553375(Rohith).csv")
+hist_data<-read.csv("Historical_20553375(Rohith).csv")
+
+```
+
+
+```{r}
+#Visualization & Exploratory Analysis for Q1:
+
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+
+library(ggplot2)
+
+
+
+ggplot(obs_data, aes(x = dawn)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black", alpha = 0.5) +
+  labs(title = "Distribution of Observations at Dawn",
+       x = "Number of Kittiwakes",
+       y = "Occurence") +
+  theme_minimal()
+
+ggplot(obs_data, aes(x = noon)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "black", alpha = 0.5) +
+  labs(title = "Distribution of Observations at Noon",
+       x = "Number of Kittiwakes",
+       y = "Occurence") +
+  theme_minimal()
+
+ggplot(obs_data, aes(x = dusk)) +
+  geom_histogram(binwidth = 1, fill = "yellow", color = "black", alpha = 0.5) +
+  labs(title = "Distribution of Observations at Dusk",
+       x = "Number of Kittiwakes",
+       y = "Occurence") +
+  theme_minimal()
+```
+
+
+```{r}
+summary(obs_data)
+
+```
+
+
+```{r}
+summary(hist_data)
+
+```
+
+
+```{r}
+summary(meas_data)
+
+```
+
+
+```{r}
+
+summary(loc_data)
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+#Generating 99% confidence interval for the the Dawn observations
+plot(obs_data$dawn, main = "", xlab = "Kittiwake observed in dawn")
+```
+
+
+```{r}
+hist(obs_data$dawn, main = "", xlab = "Kittiwake observed in dawn" ,freq = FALSE)
+curve(dnorm(x,mean(obs_data$dawn),sd(obs_data$dawn)),col=2,add=TRUE)
+boxplot(obs_data$dawn)
+
+
+#Since the data is normaly distributed we can use t-test to calculate the confidence interval for the mean 
+t.test(obs_data$dawn, conf.level = 0.99)$conf.int
+mean(obs_data$dawn)
+```
+```{r}
+#Question 2
+```
+
+
+```{r}
+hist_data
+
+column_names <- names(hist_data)
+
+# Display the column names
+print(column_names)
+
+```
+
+
+
+```{r}
+total_breeding_pairs <- rowSums(hist_data[, c("Site.A", "Site.B", "Site.C", "Site.D", "Site.E")])
+
+
+ggplot(data = data.frame(X = hist_data$X, TotalBreedingPairs = total_breeding_pairs)) +
+  geom_line(aes(x = X, y = TotalBreedingPairs), color = "blue") +
+  labs(x = "Year", y = "Total Breeding Pairs", title = "Combined Breeding Pairs Over Time")
+
+
+chi_square_result <- chisq.test(hist_data)
+print(chi_square_result)
+
+```
+
+
+```{r}
+# Question 2b Estimating 2006
+
+site_e <- hist_data[, c("X", "Site.E")]
+
+
+data_2005 <- site_e[site_e$X == 2005, "Site.E"]
+data_2010 <- site_e[site_e$X == 2010, "Site.E"]
+
+
+li_data_2006 <- data_2005 + (2006 - 2005) * (data_2010 - data_2005) / (2010 - 2005)
+
+print(li_data_2006)
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+#Question 3a
+head(meas_data)
+plot(meas_data)
+summary(meas_data)
+```
+
+
+```{r}
+#Question 3b
+#Correlation Test for "BLACK LEGGED" sub species 
+Sub_species1 <- subset(meas_data, Sub.species == 'Black-legged')
+Sub_species1
+plot(Sub_species1$Wingspan,Sub_species1$Culmen,xlab="Wingspan",ylab="Culmen")
+cor.test(Sub_species1$Wingspan,Sub_species1$Culmen)
+
+```
+
+
+```{r}
+#Question 3b
+#Correlation Test for "RED LEGGED" sub species
+Sub_species2 <- subset(meas_data, Sub.species == 'Red-legged')
+Sub_species2
+plot(Sub_species2$Wingspan,Sub_species2$Culmen,xlab="Wingspan",ylab="Culmen")
+cor.test(Sub_species2$Wingspan,Sub_species2$Culmen)
+```
+
+
+```{r}
+
+#Question 3c
+#Ftest to test if variances are equal
+hist(Sub_species1$Weight, main = "Black-Legged", xlab = "Weight" ,freq = FALSE)
+curve(dnorm(x,mean(Sub_species1$Weight),sd(Sub_species1$Weight)),col=2,add=TRUE)
+boxplot(Sub_species1$Weight)
+
+hist(Sub_species2$Weight, main = "Red-Legged", xlab = "Weight" ,freq = FALSE)
+curve(dnorm(x,mean(Sub_species2$Weight),sd(Sub_species2$Weight)),col=2,add=TRUE)
+boxplot(Sub_species2$Weight)
+
+var.test(Sub_species1$Weight,Sub_species2$Weight)
+
+#welch t-Test to check for difference in weights in two species since theres a significant variance between the 
+welch_test_result <- t.test(Sub_species1$Weight,Sub_species2$Weight, var.equal = FALSE)
+welch_test_result
+# In summary, based on these results, there is no strong evidence to reject the null hypothesis that the true difference in means between the two groups is equal to zero. The means of the two groups are not significantly different at the chosen significance level of 0.05.
+
+
+
+
+```
+
+
+```{r}
+#Question 3d
+
+manova_result <- manova(cbind(Weight, Wingspan, Culmen) ~ Sub.species, data = meas_data)
+
+print(summary(manova_result))
+
+
+```
+
+
+```{r}
+#Question 4
+head(loc_data)
+
+```
+
+
+```{r}
+model = lm(loc_data$Breeding.pairs~.,data = loc_data)
+summary(model)
+bestmodel = step(model)
+summary(bestmodel)
+hist(model$residuals,xlab="Residuals",freq=FALSE)
+curve(dnorm(x,0,summary(model)$sigma),lty=1,add=TRUE)
+plot(model$fitted.values,model$residuals,xlab="Fitted values",ylab="Residuals")
+abline(h=0,lty=2)
+
+```
+
+
+```{r}
+
+hist(bestmodel$residuals,xlab="Residuals",freq=FALSE)
+curve(dnorm(x,0,summary(bestmodel)$sigma),lty=1,add=TRUE)
+plot(bestmodel$fitted.values,bestmodel$residuals,xlab="Fitted values",ylab="Residuals")
+abline(h=0,lty=2)
+
+```
+
+
+```{r}
+
+modell = lm(log(loc_data$Breeding.pairs)~.,data = loc_data)
+summary(modell)
+hist(modell$residuals,xlab="Residuals",freq=FALSE)
+curve(dnorm(x,0,summary(modell)$sigma),lty=2,add=TRUE)
+plot(modell$fitted.values,modell$residuals,xlab="Fitted values",ylab="Residuals")
+abline(h=0,lty=2)
+
+
+```
+
+
+```{r}
+pred = predict(bestmodel,newdata=data.frame(Coast.direction = 'South', sandeel = 1.36, Summer.temp = 23.5, cliff.height = 3.99), interval = 'prediction', level = 0.80)
+pred
+
+
+
+predc = predict(bestmodel,newdata=data.frame(Coast.direction = 'South', sandeel = 1.36, Summer.temp = 23.5, cliff.height = 3.99), interval = 'confidence', level = 0.80)
+predc
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+
+
+
+
+
