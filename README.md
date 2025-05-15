@@ -1,4 +1,4 @@
-# Applied Statistics & Probability
+# Ecological Statistics: Kittiwake Analysis & Predictive Modeling in R
 
 ## Overview
 This repository contains a **statistical analysis** on **kittiwakes**, a gull species, using **Applied Statistics & Probability** methods. The research provides insights into kittiwake population dynamics by examining **observation, historical, measurement, and location data**.
